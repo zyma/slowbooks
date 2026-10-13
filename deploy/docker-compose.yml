@@ -1,0 +1,27 @@
+# Production stack on the VM. CI copies this file and the Caddyfile to ~/slowbooks.
+# ~/slowbooks/.env is created by hand on the server and never leaves it.
+services:
+  app:
+    image: ghcr.io/zyma/slowbooks:latest
+    restart: unless-stopped
+    env_file: .env
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

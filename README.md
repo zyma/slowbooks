@@ -49,6 +49,20 @@ messages/                UI strings per language
 the arrangement (cover, title, story spreads with a layout, blanks). The editor rewrites `spreads`; the renderer
 reads the same JSON to draw pages in the browser and in the print PDF.
 
+## Deploy
+
+Production runs on one Oracle Cloud VM (Ampere A1, ARM) with Docker: the app plus Caddy for HTTPS.
+Every push to `main` builds an ARM image in GitHub Actions, pushes it to `ghcr.io/zyma/slowbooks`,
+then copies `deploy/` to the server and restarts the stack.
+
+One-time setup:
+
+1. On the server create `~/slowbooks/.env` with the variables from `.env.example` (real values) plus
+   `DOMAIN=your.domain` (no domain yet: `<server-ip>.sslip.io`). Set `NEXT_PUBLIC_APP_URL=https://<DOMAIN>`.
+2. In GitHub: variable `DEPLOY_HOST` (server IP) and secret `DEPLOY_SSH_KEY` (private key that can log in as `ubuntu`).
+   The deploy job is skipped until `DEPLOY_HOST` is set.
+3. Open ports 80 and 443 in the VCN security list and in the server firewall (iptables).
+
 ## Roadmap
 
 1. Foundation (done): auth, db, storage, i18n, landing, books list
