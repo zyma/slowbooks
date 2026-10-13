@@ -7,3 +7,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+# Slow Books project notes
+
+- Reply to the project owner in Russian; code, comments and commit messages in English.
+- Env is validated in `src/lib/env.ts`. Add new variables there and in `.env.example`.
+- Locale param: always go through `resolveLocale(props.params)` from `src/i18n/locale.ts` so next-intl gets a typed locale.
+- Protected routes live under `src/app/[locale]/app`. `src/proxy.ts` does only an optimistic cookie check; real checks use `getSession()` from `src/lib/session.ts`.
+- Content vs layout: `entries` are content, `books.spreads` (JSON) is layout. Do not put layout fields on entries.
+- Speech to text is Deepgram, not Whisper. Text polish must preserve the speaker's voice (light cleanup by default).
+- Postgres is external (managed). Never assume a local one; `DATABASE_URL` is the only source of truth. `pnpm services:up` starts MinIO only; `pnpm db:local` is an optional offline fallback on :5433. Schema changes: edit `src/db/schema/*`, then `pnpm db:push` in dev, `pnpm db:generate` for migrations.

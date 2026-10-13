@@ -1,0 +1,39 @@
+{
+  "Common": {
+    "appName": "Slow Books",
+    "tagline": "Erzähl die Geschichte. Wir machen das Buch.",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "myBooks": "Meine Bücher",
+    "language": "Sprache"
+  },
+  "Landing": {
+    "title": "Ein Fotobuch aus deiner Stimme",
+    "lead": "Füge ein Foto hinzu, erzähle ein paar Worte dazu, wiederhole. Wir machen aus deinen Aufnahmen ein schön gestaltetes Buch, das du drucken kannst.",
+    "cta": "Ein Buch beginnen",
+    "how1": "Füge ein Foto hinzu und nimm auf, was du darüber erinnerst",
+    "how2": "Wir transkribieren und ordnen deine Worte behutsam",
+    "how3": "Seiten anordnen, Stil wählen, drucken"
+  },
+  "Login": {
+    "title": "Mit E-Mail anmelden",
+    "lead": "Wir schicken dir einen Link. Kein Passwort nötig.",
+    "email": "E-Mail",
+    "submit": "Link schicken",
+    "sending": "Wird gesendet...",
+    "sentTitle": "Schau in dein Postfach",
+    "sentLead": "Wir haben einen Anmeldelink an {email} geschickt. Er gilt 15 Minuten.",
+    "error": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal."
+  },
+  "App": {
+    "title": "Meine Bücher",
+    "empty": "Du hast noch keine Bücher.",
+    "newBook": "Neues Buch",
+    "untitled": "Buch ohne Titel",
+    "status": {
+      "collecting": "Sammeln",
+      "editing": "Bearbeiten",
+      "ready": "Fertig"
+    }
+  }
+}

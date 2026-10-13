@@ -1,0 +1,39 @@
+{
+  "Common": {
+    "appName": "Slow Books",
+    "tagline": "Tell the story. We make the book.",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "myBooks": "My books",
+    "language": "Language"
+  },
+  "Landing": {
+    "title": "A photo book made from your voice",
+    "lead": "Add a photo, say a few words about it, repeat. We turn your recordings into a beautifully laid out book you can print.",
+    "cta": "Start a book",
+    "how1": "Add a photo and record what you remember about it",
+    "how2": "We transcribe and gently clean up your words",
+    "how3": "Arrange pages, pick a look, print"
+  },
+  "Login": {
+    "title": "Sign in with email",
+    "lead": "We will send you a link. No password needed.",
+    "email": "Email",
+    "submit": "Send me a link",
+    "sending": "Sending...",
+    "sentTitle": "Check your inbox",
+    "sentLead": "We sent a sign-in link to {email}. It works for 15 minutes.",
+    "error": "Something went wrong. Please try again."
+  },
+  "App": {
+    "title": "My books",
+    "empty": "You have no books yet.",
+    "newBook": "New book",
+    "untitled": "Untitled book",
+    "status": {
+      "collecting": "Collecting",
+      "editing": "Editing",
+      "ready": "Ready"
+    }
+  }
+}
