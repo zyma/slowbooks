@@ -1,5 +1,5 @@
 # Production stack on the VM. CI copies this file and the Caddyfile to ~/slowbooks.
-# ~/slowbooks/.env is created by hand on the server and never leaves it.
+# ~/slowbooks/.env is written by CI from GitHub Secrets and Variables on every deploy.
 services:
   app:
     image: ghcr.io/zyma/slowbooks:latest

@@ -57,11 +57,15 @@ then copies `deploy/` to the server and restarts the stack.
 
 One-time setup:
 
-1. On the server create `~/slowbooks/.env` with the variables from `.env.example` (real values) plus
-   `DOMAIN=your.domain` (no domain yet: `<server-ip>.sslip.io`). Set `NEXT_PUBLIC_APP_URL=https://<DOMAIN>`.
-2. In GitHub: variable `DEPLOY_HOST` (server IP) and secret `DEPLOY_SSH_KEY` (private key that can log in as `ubuntu`).
-   The deploy job is skipped until `DEPLOY_HOST` is set.
-3. Open ports 80 and 443 in the VCN security list and in the server firewall (iptables).
+1. GitHub variables (plain config): `DEPLOY_HOST` (server IP), `DOMAIN` (no domain yet: `<server-ip>.sslip.io`),
+   `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_FORCE_PATH_STYLE`, `EMAIL_FROM`.
+2. GitHub secrets: `DEPLOY_SSH_KEY` (private key that can log in as `ubuntu`), `DATABASE_URL`, `BETTER_AUTH_SECRET`,
+   `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, optional `RESEND_API_KEY`, `DEEPGRAM_API_KEY`, `ANTHROPIC_API_KEY`.
+   Set them with `gh secret set NAME` (the value is read from a hidden prompt).
+3. Open ports 80 and 443 in the cloud firewall.
+
+The deploy job writes `~/slowbooks/.env` on the server from these values on every run, so edit them in GitHub,
+not on the server. The job is skipped until `DEPLOY_HOST` is set.
 
 ## Roadmap
 
