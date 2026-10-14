@@ -74,8 +74,8 @@ jobs:
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
           S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
         run: |
           required="DOMAIN S3_ENDPOINT S3_BUCKET DATABASE_URL BETTER_AUTH_SECRET S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY"
           for name in $required; do
@@ -86,7 +86,7 @@ jobs:
           : > app.env
           for name in DOMAIN NEXT_PUBLIC_APP_URL EMAIL_FROM DATABASE_URL BETTER_AUTH_SECRET \
             S3_ENDPOINT S3_REGION S3_BUCKET S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY S3_FORCE_PATH_STYLE \
-            RESEND_API_KEY DEEPGRAM_API_KEY ANTHROPIC_API_KEY; do
+            RESEND_API_KEY GEMINI_API_KEY GEMINI_MODEL; do
             printf "%s='%s'\n" "$name" "${!name}" >> app.env
           done
 

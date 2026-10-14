@@ -20,36 +20,41 @@ export function LoginForm({ next }: { next: string }) {
 
   if (state === "sent") {
     return (
-      <div>
-        <h1 className="text-3xl">{t("sentTitle")}</h1>
-        <p className="mt-4 text-ink-soft">{t("sentLead", { email })}</p>
+      <div role="status">
+        <h1 className="text-[34px] leading-tight">{t("sentTitle")}</h1>
+        <p className="mt-4 text-[18px] leading-normal text-ink-soft">{t("sentLead", { email })}</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
-      <h1 className="text-3xl">{t("title")}</h1>
-      <p className="text-ink-soft">{t("lead")}</p>
-      <label className="flex flex-col gap-1 text-sm">
+    <form onSubmit={onSubmit} className="flex flex-col">
+      <h1 className="text-[34px] leading-tight">{t("title")}</h1>
+      <p className="mt-3 text-[18px] leading-normal text-ink-soft">{t("lead")}</p>
+      <label htmlFor="login-email" className="mt-8 text-[16px] text-ink-soft">
         {t("email")}
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border border-line rounded-md px-3 py-2 bg-white text-base"
-        />
       </label>
+      <input
+        id="login-email"
+        type="email"
+        required
+        autoComplete="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="mt-1.5 min-h-12 rounded border border-line bg-print px-3.5 text-[17px]"
+      />
       <button
         type="submit"
         disabled={state === "sending"}
-        className="bg-accent text-paper px-5 py-2.5 rounded-md disabled:opacity-60"
+        className="mt-4 min-h-[52px] rounded bg-album text-[18px] font-medium text-print disabled:opacity-60"
       >
         {state === "sending" ? t("sending") : t("submit")}
       </button>
-      {state === "error" && <p className="text-sm text-red-700">{t("error")}</p>}
+      {state === "error" && (
+        <p role="alert" className="mt-3 text-[16px]">
+          {t("error")}
+        </p>
+      )}
     </form>
   );
 }

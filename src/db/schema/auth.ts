@@ -8,6 +8,8 @@ export const user = pgTable("user", {
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
   locale: text("locale"),
+  /** Guest created by the anonymous plugin. Guests can make moments but not keep them. */
+  isAnonymous: boolean("is_anonymous").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

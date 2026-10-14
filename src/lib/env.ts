@@ -15,8 +15,11 @@ const schema = z.object({
     .string()
     .optional()
     .transform((v) => v === "true"),
-  DEEPGRAM_API_KEY: z.string().optional().default(""),
-  ANTHROPIC_API_KEY: z.string().optional().default(""),
+  GEMINI_API_KEY: z.string().optional().default(""),
+  GEMINI_MODEL: z
+    .string()
+    .optional()
+    .transform((v) => v || "gemini-flash-latest"),
 });
 
 /**

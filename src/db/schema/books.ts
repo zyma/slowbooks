@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -80,14 +81,28 @@ export const books = pgTable(
   (t) => [index("books_user_id_idx").on(t.userId)],
 );
 
+/**
+ * One entry is one "moment": a photo plus the story told about it.
+ * A moment lives on its own first (and can be shared); later it may be placed in a book.
+ */
 export const entries = pgTable(
   "entries",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    bookId: uuid("book_id")
+    userId: text("user_id")
       .notNull()
-      .references(() => books.id, { onDelete: "cascade" }),
-    position: integer("position").notNull(),
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** Null while the moment is not part of a book. */
+    bookId: uuid("book_id").references(() => books.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(0),
+    /** Random public id used in the share link (/m/{shareId}). Set when the moment is published. */
+    shareId: text("share_id").unique(),
+    /** Who tells the story and about what, e.g. "Olga, about Dima's throne". */
+    caption: text("caption"),
+    /** Whether people with the link can play the voice recording. */
+    voicePublic: boolean("voice_public").notNull().default(true),
+    /** Normalized loudness peaks (0..1) of the recording, drawn as the voice waveform. */
+    waveform: jsonb("waveform").$type<number[]>(),
     photoAssetId: uuid("photo_asset_id")
       .notNull()
       .references(() => assets.id, { onDelete: "restrict" }),
@@ -103,7 +118,7 @@ export const entries = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [index("entries_book_id_idx").on(t.bookId)],
+  (t) => [index("entries_book_id_idx").on(t.bookId), index("entries_user_id_idx").on(t.userId)],
 );
 
 export const renders = pgTable("renders", {

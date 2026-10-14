@@ -2,19 +2,22 @@ import type { Metadata } from "next";
 import { resolveLocale } from "@/i18n/locale";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Inter, Literata } from "next/font/google";
+import { Alegreya, Alegreya_Sans } from "next/font/google";
 import { routing } from "@/i18n/routing";
+import { env } from "@/lib/env";
 import "../globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+// One family made for books: serif for stories and headings, sans for the interface.
+const alegreya = Alegreya({
+  variable: "--font-alegreya",
   subsets: ["latin", "latin-ext", "cyrillic"],
   display: "swap",
 });
 
-const literata = Literata({
-  variable: "--font-literata",
+const alegreyaSans = Alegreya_Sans({
+  variable: "--font-alegreya-sans",
   subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -26,6 +29,7 @@ export async function generateMetadata(props: LayoutProps<"/[locale]">): Promise
   const locale = await resolveLocale(props.params);
   const t = await getTranslations({ locale, namespace: "Common" });
   return {
+    metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
     title: { default: t("appName"), template: `%s · ${t("appName")}` },
     description: t("tagline"),
   };
@@ -36,7 +40,7 @@ export default async function LocaleLayout(props: LayoutProps<"/[locale]">) {
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`${inter.variable} ${literata.variable} h-full`}>
+    <html lang={locale} className={`${alegreya.variable} ${alegreyaSans.variable} h-full`}>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>{props.children}</NextIntlClientProvider>
       </body>

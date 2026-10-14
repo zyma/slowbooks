@@ -1,11 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { anonymous } from "better-auth/plugins/anonymous";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { sendMail } from "./email";
 import { env } from "./env";
+import { moveGuestData } from "./moments";
 
 export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
@@ -22,6 +24,13 @@ export const auth = betterAuth({
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
   plugins: [
+    // Guests get a session on their first moment. When they sign in on the same
+    // device, their moments move to the real account and the guest is deleted.
+    anonymous({
+      onLinkAccount: async ({ anonymousUser, newUser }) => {
+        await moveGuestData(anonymousUser.user.id, newUser.user.id);
+      },
+    }),
     magicLink({
       expiresIn: 60 * 15,
       sendMagicLink: async ({ email, url }) => {

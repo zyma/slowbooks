@@ -2,24 +2,20 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-export function SiteHeader({ signedIn }: { signedIn: boolean }) {
+/** Site header. `album` sits on the dark album page, `paper` on light work pages. */
+export function SiteHeader({ signedIn, tone = "paper" }: { signedIn: boolean; tone?: "album" | "paper" }) {
   const t = useTranslations("Common");
+  const strong = tone === "album" ? "text-print" : "text-ink";
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-line">
-      <Link href="/" className="font-serif text-xl">
+    <header className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-6">
+      <Link href="/" className={`font-serif text-[22px] font-medium no-underline sm:text-[26px] ${strong}`}>
         {t("appName")}
       </Link>
-      <nav className="flex items-center gap-4 text-sm">
-        <LanguageSwitcher />
-        {signedIn ? (
-          <Link href="/app" className="underline-offset-4 hover:underline">
-            {t("myBooks")}
-          </Link>
-        ) : (
-          <Link href="/login" className="underline-offset-4 hover:underline">
-            {t("signIn")}
-          </Link>
-        )}
+      <nav className="flex items-center gap-5 text-[17px]">
+        <LanguageSwitcher tone={tone} />
+        <Link href={signedIn ? "/app" : "/login"} className={`underline-offset-4 hover:underline ${strong}`}>
+          {signedIn ? t("myMoments") : t("signIn")}
+        </Link>
       </nav>
     </header>
   );

@@ -6,22 +6,23 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 
 const labels: Record<AppLocale, string> = { en: "EN", ru: "RU", es: "ES", de: "DE" };
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ tone = "paper" }: { tone?: "album" | "paper" }) {
   const locale = useLocale();
   const t = useTranslations("Common");
   const router = useRouter();
   const pathname = usePathname();
+  const colors = tone === "album" ? "border-[#5a6066] text-pencil" : "border-line text-ink";
 
   return (
-    <label className="flex items-center gap-2">
+    <label className="flex items-center">
       <span className="sr-only">{t("language")}</span>
       <select
         value={locale}
         onChange={(e) => router.replace(pathname, { locale: e.target.value as AppLocale })}
-        className="bg-transparent border border-line rounded px-2 py-1 text-sm"
+        className={`min-h-11 rounded border bg-transparent px-2.5 text-[16px] ${colors}`}
       >
         {locales.map((l) => (
-          <option key={l} value={l}>
+          <option key={l} value={l} className="text-ink">
             {labels[l]}
           </option>
         ))}

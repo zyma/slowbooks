@@ -1,40 +1,171 @@
 @import "tailwindcss";
 
+/*
+ * "Family album" look. Two surfaces with a meaning:
+ * - album (dark page): where finished moments live (landing hero, moment page, share images);
+ * - paper (light): where people work (creating a moment, account pages).
+ * Red is used only for recording.
+ */
 :root {
-  --paper: #f6f1e9;
-  --paper-deep: #ece4d8;
-  --ink: #22201d;
-  --ink-soft: #6b655c;
-  --accent: #8a5a3c;
-  --accent-soft: #d9bfa8;
-  --line: #d8cfc2;
+  --album: #2e3236;
+  --corner: #1c1f22;
+  --print: #fbfaf7;
+  --pencil: #c9ccc6;
+  --pencil-soft: #9aa09b;
+  --line-dark: #454a4f;
+  --control-dark: #8a9095;
+  --wave-dark: #7c8287;
+  --paper: #f3f4f1;
+  --ink: #1d2024;
+  --ink-soft: #5e646b;
+  --line: #b9bfb8;
+  --wave-light: #b9beb8;
+  --rec: #d23a2c;
 }
 
 @theme inline {
+  --color-album: var(--album);
+  --color-corner: var(--corner);
+  --color-print: var(--print);
+  --color-pencil: var(--pencil);
+  --color-pencil-soft: var(--pencil-soft);
+  --color-line-dark: var(--line-dark);
+  --color-control-dark: var(--control-dark);
+  --color-wave-dark: var(--wave-dark);
   --color-paper: var(--paper);
-  --color-paper-deep: var(--paper-deep);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
   --color-line: var(--line);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-serif: var(--font-literata), Georgia, serif;
+  --color-wave-light: var(--wave-light);
+  --color-rec: var(--rec);
+  --font-sans: var(--font-alegreya-sans), system-ui, sans-serif;
+  --font-serif: var(--font-alegreya), Georgia, serif;
 }
 
-html {
-  color-scheme: light;
+/* In the base layer so Tailwind utilities (font-sans on a heading, for example) can override them. */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
 }
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+/* A photo print held on an album page by four paper corners. */
+.photo-print {
+  position: relative;
+  background: var(--print);
+  padding: var(--print-pad, 16px);
+  box-shadow:
+    0 1px 0 rgb(0 0 0 / 0.3),
+    0 24px 48px -26px rgb(0 0 0 / 0.7);
+}
+.photo-print[data-size="sm"] {
+  --print-pad: 6px;
+  --corner-size: 16px;
+  --corner-offset: 2px;
+}
+.photo-print[data-size="md"] {
+  --print-pad: 9px;
+  --corner-size: 28px;
+  --corner-offset: 4px;
+}
+.photo-print[data-size="lg"] {
+  --print-pad: 16px;
+  --corner-size: 40px;
+  --corner-offset: 5px;
+}
+.photo-print > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.photo-corner {
+  position: absolute;
+  width: var(--corner-size, 28px);
+  height: var(--corner-size, 28px);
+  background: var(--corner);
+}
+.photo-corner[data-at="tl"] {
+  top: calc(var(--corner-offset) * -1);
+  left: calc(var(--corner-offset) * -1);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.photo-corner[data-at="tr"] {
+  top: calc(var(--corner-offset) * -1);
+  right: calc(var(--corner-offset) * -1);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.photo-corner[data-at="bl"] {
+  bottom: calc(var(--corner-offset) * -1);
+  left: calc(var(--corner-offset) * -1);
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+.photo-corner[data-at="br"] {
+  bottom: calc(var(--corner-offset) * -1);
+  right: calc(var(--corner-offset) * -1);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* The landing sample: the voice waveform draws in, then the story appears. One moment, once. */
+.reveal-wave {
+  animation: reveal-wave 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+}
+.reveal-text {
+  animation: reveal-text 1s ease-out both;
+}
+@keyframes reveal-wave {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes reveal-text {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-wave,
+  .reveal-text {
+    animation: none;
+  }
+}
+
+/* Recording button: a gentle ring while the microphone is live. */
+.rec-live {
+  box-shadow: 0 0 0 10px rgb(210 58 44 / 0.14);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rec-live {
+    animation: rec-pulse 1.6s ease-in-out infinite;
+  }
+}
+@keyframes rec-pulse {
+  50% {
+    box-shadow: 0 0 0 14px rgb(210 58 44 / 0.08);
+  }
 }
