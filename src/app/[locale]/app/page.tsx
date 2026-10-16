@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { assets, entries } from "@/db/schema";
 import { PhotoPrint } from "@/components/PhotoPrint";
 import { SignOutButton } from "@/components/SignOutButton";
+import { buttonPrimary, recordDot } from "@/components/styles";
 import { resolveLocale } from "@/i18n/locale";
 import { Link } from "@/i18n/navigation";
 import { excerpt } from "@/lib/moments";
@@ -29,18 +30,15 @@ export default async function MomentsPage(props: PageProps<"/[locale]/app">) {
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <h1 className="text-[clamp(32px,3.4vw,44px)] leading-tight">{t("title")}</h1>
+        <h1 className="text-[clamp(36px,4vw,56px)] leading-[1.02] tracking-[-0.025em]">{t("title")}</h1>
         <div className="flex items-center gap-4">
           <span className="text-[16px] text-ink-soft">{session.user.email}</span>
           <SignOutButton />
         </div>
       </div>
 
-      <Link
-        href="/moment/new"
-        className="mt-8 inline-flex min-h-14 items-center gap-3 rounded bg-album px-7 text-[19px] font-medium text-print no-underline"
-      >
-        <span aria-hidden="true" className="size-[11px] rounded-full bg-rec" />
+      <Link href="/moment/new" className={`${buttonPrimary} mt-8`}>
+        <span aria-hidden="true" className={recordDot} />
         {t("create")}
       </Link>
 
@@ -51,7 +49,7 @@ export default async function MomentsPage(props: PageProps<"/[locale]/app">) {
           {moments.map(({ entry, photoUrl }) => (
             <li key={entry.id}>
               <Link href={`/m/${entry.shareId}`} className="block text-ink no-underline">
-                <PhotoPrint size="sm">
+                <PhotoPrint>
                   {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL from storage */}
                   <img src={photoUrl} alt="" className="aspect-[4/5] object-cover" />
                 </PhotoPrint>

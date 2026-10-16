@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { momentImageData, renderMomentImage } from "@/lib/moment-image";
+import { momentImageData, renderLinkPreview } from "@/lib/moment-image";
 import { findMomentByShareId } from "@/lib/moments";
 
 export const alt = "Slow Books";
@@ -12,5 +12,5 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
   const { shareId } = await params;
   const moment = await findMomentByShareId(shareId);
   if (!moment) return new Response("Not found", { status: 404 });
-  return renderMomentImage("og", await momentImageData(moment));
+  return renderLinkPreview(await momentImageData(moment));
 }

@@ -1,43 +1,61 @@
 @import "tailwindcss";
 
 /*
- * "Family album" look. Two surfaces with a meaning:
- * - album (dark page): where finished moments live (landing hero, moment page, share images);
- * - paper (light): where people work (creating a moment, account pages).
+ * "Reading room" look: warm newsprint paper with near-black ink.
+ * - Colour comes only from photos: on the landing the table under the book takes the colour of the open spread,
+ *   and the sections below use the same few bright tones (sky, rose, honey).
+ * - Buttons are black pills; photos, cards and fields have square corners.
+ * - Shadows only on loose paper objects (cards, a book cover) so they read as things on a table.
+ * - Pencil notes are handwritten (Caveat) in graphite.
  * Red is used only for recording.
  */
 :root {
+  --paper: #f7f4ed;
+  --surface: #ffffff;
+  --ink: #242424;
+  --ink-soft: #6b6b6b;
+  --line: #d9d4c9;
+  --button: #191919;
+  --wave-light: #c9c3b6;
   --album: #2e3236;
-  --corner: #1c1f22;
   --print: #fbfaf7;
   --pencil: #c9ccc6;
   --pencil-soft: #9aa09b;
-  --line-dark: #454a4f;
-  --control-dark: #8a9095;
-  --wave-dark: #7c8287;
-  --paper: #f3f4f1;
-  --ink: #1d2024;
-  --ink-soft: #5e646b;
-  --line: #b9bfb8;
-  --wave-light: #b9beb8;
   --rec: #d23a2c;
+  --page-ink: #1d2024;
+  --page-soft: #5e646b;
+  --graphite: #5f6661;
+  --sky: #a9d6f0;
+  --sky-soft: #cfe9ff;
+  --rose: #f6b3c3;
+  --honey: #f6d47a;
+  --honey-soft: #ffe9a8;
+  --berry: #8c1d3f;
 }
 
 @theme inline {
-  --color-album: var(--album);
-  --color-corner: var(--corner);
-  --color-print: var(--print);
-  --color-pencil: var(--pencil);
-  --color-pencil-soft: var(--pencil-soft);
-  --color-line-dark: var(--line-dark);
-  --color-control-dark: var(--control-dark);
-  --color-wave-dark: var(--wave-dark);
   --color-paper: var(--paper);
+  --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-line: var(--line);
+  --color-button: var(--button);
   --color-wave-light: var(--wave-light);
+  --color-album: var(--album);
+  --color-print: var(--print);
+  --color-pencil: var(--pencil);
+  --color-pencil-soft: var(--pencil-soft);
   --color-rec: var(--rec);
+  --color-page-ink: var(--page-ink);
+  --color-page-soft: var(--page-soft);
+  --color-graphite: var(--graphite);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-rose: var(--rose);
+  --color-honey: var(--honey);
+  --color-honey-soft: var(--honey-soft);
+  --color-berry: var(--berry);
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
   --font-sans: var(--font-alegreya-sans), system-ui, sans-serif;
   --font-serif: var(--font-alegreya), Georgia, serif;
 }
@@ -59,8 +77,8 @@
   h2,
   h3 {
     font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-weight: 400;
+    letter-spacing: -0.015em;
   }
 }
 
@@ -69,90 +87,11 @@
   outline-offset: 3px;
 }
 
-/* A photo print held on an album page by four paper corners. */
-.photo-print {
-  position: relative;
-  background: var(--print);
-  padding: var(--print-pad, 16px);
-  box-shadow:
-    0 1px 0 rgb(0 0 0 / 0.3),
-    0 24px 48px -26px rgb(0 0 0 / 0.7);
-}
-.photo-print[data-size="sm"] {
-  --print-pad: 6px;
-  --corner-size: 16px;
-  --corner-offset: 2px;
-}
-.photo-print[data-size="md"] {
-  --print-pad: 9px;
-  --corner-size: 28px;
-  --corner-offset: 4px;
-}
-.photo-print[data-size="lg"] {
-  --print-pad: 16px;
-  --corner-size: 40px;
-  --corner-offset: 5px;
-}
+/* A photo on the page. */
 .photo-print > img {
   display: block;
   width: 100%;
   height: auto;
-}
-.photo-corner {
-  position: absolute;
-  width: var(--corner-size, 28px);
-  height: var(--corner-size, 28px);
-  background: var(--corner);
-}
-.photo-corner[data-at="tl"] {
-  top: calc(var(--corner-offset) * -1);
-  left: calc(var(--corner-offset) * -1);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-.photo-corner[data-at="tr"] {
-  top: calc(var(--corner-offset) * -1);
-  right: calc(var(--corner-offset) * -1);
-  clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-.photo-corner[data-at="bl"] {
-  bottom: calc(var(--corner-offset) * -1);
-  left: calc(var(--corner-offset) * -1);
-  clip-path: polygon(0 0, 0 100%, 100% 100%);
-}
-.photo-corner[data-at="br"] {
-  bottom: calc(var(--corner-offset) * -1);
-  right: calc(var(--corner-offset) * -1);
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-}
-
-/* The landing sample: the voice waveform draws in, then the story appears. One moment, once. */
-.reveal-wave {
-  animation: reveal-wave 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
-}
-.reveal-text {
-  animation: reveal-text 1s ease-out both;
-}
-@keyframes reveal-wave {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-@keyframes reveal-text {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal-wave,
-  .reveal-text {
-    animation: none;
-  }
 }
 
 /* Recording button: a gentle ring while the microphone is live. */
@@ -167,5 +106,186 @@
 @keyframes rec-pulse {
   50% {
     box-shadow: 0 0 0 14px rgb(210 58 44 / 0.08);
+  }
+}
+
+/*
+ * The landing book. --pw is one page width; pages are 3:4. Page content is sized in page widths (cqw).
+ * A leaf turns around the spine: its front is a right page, its back the next left page.
+ */
+.lb-book {
+  /* Tablets: the spread sits under the captions, so it can take most of the width. */
+  --pw: min(44vw, 400px);
+  position: relative;
+  width: calc(var(--pw) * 2);
+  height: calc(var(--pw) * 4 / 3);
+  touch-action: pan-y;
+  user-select: none;
+  cursor: pointer;
+}
+/* Wide screens: the spread stands beside a 400px caption column inside the 1200px container. */
+@media (min-width: 1280px) {
+  .lb-book {
+    --pw: min(calc((min(100vw, 1200px) - 504px) / 2), calc((100svh - 180px) * 0.75));
+  }
+}
+.lb-book.lb-one {
+  --pw: min(calc(100vw - 40px), calc(46svh * 0.75), 420px);
+  width: var(--pw);
+}
+.lb-page,
+.lb-leaf {
+  position: absolute;
+  top: 0;
+  width: var(--pw);
+  height: 100%;
+}
+.lb-page.lb-left {
+  left: 0;
+}
+.lb-page.lb-right,
+.lb-leaf {
+  left: var(--pw);
+}
+.lb-one .lb-page.lb-right,
+.lb-one .lb-leaf {
+  left: 0;
+}
+.lb-leaf {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition:
+    transform 1.1s cubic-bezier(0.45, 0.05, 0.25, 1),
+    opacity 0.5s linear;
+}
+.lb-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--print);
+  color: var(--page-ink);
+  container-type: inline-size;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.lb-face.lb-back {
+  transform: rotateY(180deg);
+}
+/* The gutter: a soft tone at the spine side of each page. */
+.lb-face.lb-l {
+  background-image: linear-gradient(to left, rgb(29 32 36 / 0.13), rgb(29 32 36 / 0) 8%);
+}
+.lb-face.lb-r {
+  background-image: linear-gradient(to right, rgb(29 32 36 / 0.13), rgb(29 32 36 / 0) 8%);
+}
+.lb-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.lb-r .lb-shade {
+  background: linear-gradient(to left, rgb(29 32 36 / 0.28), rgb(29 32 36 / 0) 70%);
+}
+.lb-l .lb-shade {
+  background: linear-gradient(to right, rgb(29 32 36 / 0.28), rgb(29 32 36 / 0) 70%);
+}
+@keyframes lb-shade {
+  50% {
+    opacity: 1;
+  }
+}
+/* A turned-up corner on the right page says "this turns". */
+.lb-book::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  background: linear-gradient(315deg, var(--table) 50%, #e4e1d9 50%);
+  transition:
+    width 0.2s,
+    height 0.2s;
+}
+.lb-book:hover::after {
+  width: 38px;
+  height: 38px;
+}
+.lb-book.lb-end::after {
+  display: none;
+}
+.lb-table {
+  background-color: var(--table);
+  transition: background-color 1.2s ease;
+}
+.lb-accent {
+  color: var(--accent);
+  transition: color 1.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-leaf,
+  .lb-table,
+  .lb-accent {
+    transition: none;
+  }
+}
+
+/* Captions beside the book: the old one fades out, then the new one comes in. */
+.lb-thought {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+.lb-thought.lb-on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  transition:
+    opacity 0.45s ease 0.22s,
+    transform 0.45s ease 0.22s;
+}
+
+/* Pencil underline for the words a storyteller leans on. */
+.lb-hl {
+  text-decoration: underline wavy #8a908b;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.24em;
+}
+
+/* Loose cards on the table below; they gather into a stack on hover. */
+.lb-card {
+  rotate: var(--r);
+  translate: calc(-50% + var(--x)) 0;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.2),
+    0 8px 20px rgb(0 0 0 / 0.12);
+  transition:
+    rotate 0.4s ease,
+    translate 0.4s ease;
+}
+.lb-fan:hover .lb-card {
+  rotate: 0deg;
+  translate: calc(-50% + var(--x) * 0.25) 0;
+}
+.lb-cover {
+  box-shadow:
+    inset 8px 0 0 rgb(0 0 0 / 0.18),
+    0 2px 3px rgb(0 0 0 / 0.2),
+    0 14px 30px rgb(0 0 0 / 0.18);
+}
+
+/* An open moment page: the spine tone shows only when the two pages stand side by side. */
+@media (min-width: 768px) {
+  .lb-gutter-l {
+    background-image: linear-gradient(to left, rgb(29 32 36 / 0.13), rgb(29 32 36 / 0) 8%);
+  }
+  .lb-gutter-r {
+    background-image: linear-gradient(to right, rgb(29 32 36 / 0.13), rgb(29 32 36 / 0) 8%);
   }
 }

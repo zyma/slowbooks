@@ -1,22 +1,88 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { PhotoPrint } from "@/components/PhotoPrint";
+import { QrMark } from "@/components/QrMark";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Waveform } from "@/components/Waveform";
+import { buttonPrimary, recordDot } from "@/components/styles";
 import { resolveLocale } from "@/i18n/locale";
 import { Link } from "@/i18n/navigation";
 import { getMemberSession } from "@/lib/session";
 import { samplePeaks } from "@/lib/waveform";
+import { LandingBook } from "./LandingBook";
 import stump from "../../../public/samples/stump.jpg";
 import couch from "../../../public/samples/couch.jpg";
 import baby from "../../../public/samples/baby.jpg";
 
-const heroPeaks = samplePeaks(1965);
-const recordingPeaks = samplePeaks(37);
-const bookPeaks = samplePeaks(1971);
-
 function RecordDot() {
-  return <span aria-hidden="true" className="size-3 flex-none rounded-full bg-rec" />;
+  return <span aria-hidden="true" className={recordDot} />;
+}
+
+/** Bars of a sample recording. Small book pages need bars: a smooth wave turns into a blot at this size. */
+function WaveBars({ seed, className }: { seed: number; className: string }) {
+  const peaks = samplePeaks(seed, 60);
+  const d = peaks.map((v, i) => {
+    const h = Math.max(2, Math.round(v * 22));
+    return `M${i * 4} ${12 - h / 2}h2v${h}h-2z`;
+  });
+  return (
+    <svg viewBox="0 0 240 24" preserveAspectRatio="none" aria-hidden="true" className={`block w-full ${className}`}>
+      <path d={d.join("")} fill="currentColor" />
+    </svg>
+  );
+}
+
+/** A pencil note by hand, placed on a page in page widths. */
+function Note({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <span
+      className={`pointer-events-none absolute whitespace-nowrap font-hand text-[5.8cqw] leading-none text-graphite ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** A pencil arrow from a note to the thing it is about. */
+function NoteArrow({ className }: { className: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 24"
+      aria-hidden="true"
+      className={`pointer-events-none absolute fill-none stroke-graphite stroke-[1.3] ${className}`}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M13 1C14 9 9 15 3 21M3 21l.5-5M3 21l5-1" />
+    </svg>
+  );
+}
+
+function PhotoPage({ src, alt, children }: { src: StaticImageData; alt: string; children?: React.ReactNode }) {
+  return (
+    <>
+      <div className="absolute inset-0 flex items-center px-[9.5cqw] pb-[13cqw] pt-[11cqw]">
+        <div className="relative aspect-[4/5] w-full">
+          <Image src={src} alt={alt} fill sizes="(max-width: 639px) 80vw, (max-width: 1023px) 40vw, 26vw" className="object-cover" />
+        </div>
+      </div>
+      {children}
+    </>
+  );
+}
+
+function StoryPage({ story, who, seed, qrNote }: { story: React.ReactNode; who: string; seed: number; qrNote: string }) {
+  return (
+    <div className="absolute inset-0 flex flex-col pb-[9cqw] pl-[11cqw] pr-[9cqw] pt-[11cqw]">
+      <p className="m-0 font-serif text-[4.5cqw] leading-normal">{story}</p>
+      <div className="mt-[3.5cqw] text-[3.5cqw] text-page-soft">{who}</div>
+      <div className="mt-auto flex items-center gap-[4cqw]">
+        <QrMark seed={seed} className="size-[17cqw] flex-none text-page-ink" />
+        <div className="min-w-0 flex-1">
+          <WaveBars seed={seed} className="h-[6cqw] text-page-ink" />
+          <div className="mt-[1.6cqw] text-[2.9cqw] text-page-soft">{qrNote}</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default async function LandingPage(props: PageProps<"/[locale]">) {
@@ -25,141 +91,193 @@ export default async function LandingPage(props: PageProps<"/[locale]">) {
   const t = await getTranslations("Landing");
   const member = await getMemberSession();
 
-  const primaryCta =
-    "inline-flex min-h-[58px] items-center gap-3 rounded bg-print px-7 text-[20px] font-medium text-ink no-underline hover:bg-white";
-  const sectionTitle = "font-serif text-[clamp(34px,3.4vw,48px)] leading-[1.1]";
+  const hl = (chunks: React.ReactNode) => <span className="lb-hl">{chunks}</span>;
+  const qrNote = t("qrNote");
+  const thoughtTitle = "font-serif text-[clamp(30px,3.4vw,46px)] leading-[1.04] tracking-[-0.025em]";
+  const thoughtText = "mt-5 max-w-[30em] text-[18px] leading-normal text-ink/80 sm:text-[19px]";
+  const kicker = "lb-accent mb-4 text-[14px] uppercase tracking-[0.08em]";
+  const sectionTitle = "font-serif text-[clamp(34px,4vw,52px)] leading-[1.04] tracking-[-0.025em]";
+
+  const pages = [
+    <PhotoPage key="p1" src={stump} alt={t("sample1Alt")}>
+      <Note className="right-[9cqw] top-[3cqw] -rotate-3">{t("sample1NoteTop")}</Note>
+      <NoteArrow className="left-[55cqw] top-[8.5cqw] h-[18cqw] w-[12cqw]" />
+      <Note className="bottom-[4cqw] left-[10cqw] -rotate-[1.5deg]">{t("sample1NoteBottom")}</Note>
+    </PhotoPage>,
+    <StoryPage key="p2" story={t.rich("sample1Story", { hl })} who={t("sample1Who")} seed={7} qrNote={qrNote} />,
+    <PhotoPage key="p3" src={couch} alt={t("sample2Alt")}>
+      <Note className="bottom-[4cqw] left-[10cqw] -rotate-1">{t("sample2NoteBottom")}</Note>
+    </PhotoPage>,
+    <StoryPage key="p4" story={t.rich("sample2Story", { hl })} who={t("sample2Who")} seed={11} qrNote={qrNote} />,
+    <PhotoPage key="p5" src={baby} alt={t("sample3Alt")}>
+      <Note className="right-[8cqw] top-[3cqw] rotate-2">{t("sample3NoteTop")}</Note>
+      <NoteArrow className="right-[16cqw] top-[8.5cqw] h-[14cqw] w-[9cqw] -scale-x-100" />
+      <Note className="bottom-[4cqw] left-[10cqw] -rotate-2">{t("sample3NoteBottom")}</Note>
+    </PhotoPage>,
+    <StoryPage key="p6" story={t.rich("sample3Story", { hl })} who={t("sample3Who")} seed={19} qrNote={qrNote} />,
+    <div key="p7" className="absolute inset-0 flex items-center px-[9.5cqw] pb-[13cqw] pt-[11cqw]">
+      <div className="flex aspect-[4/5] w-full items-center justify-center border border-dashed border-pencil-soft p-[10cqw] text-center text-[4.4cqw] text-page-soft">
+        {t("emptyPhoto")}
+      </div>
+      <Note className="bottom-[4cqw] left-[10cqw] -rotate-[1.5deg]">{t("emptyNote")}</Note>
+    </div>,
+    <div key="p8" className="absolute inset-0 flex flex-col pb-[13cqw] pl-[11cqw] pr-[9cqw] pt-[11cqw]">
+      <h3 className="text-[6.4cqw]">{t("blankTitle")}</h3>
+      <div className="mt-[4cqw] flex-1 bg-[repeating-linear-gradient(to_bottom,transparent_0,transparent_calc(7.2cqw-1px),rgb(154_160_155/0.45)_calc(7.2cqw-1px),rgb(154_160_155/0.45)_7.2cqw)]" />
+      <Link
+        href="/moment/new"
+        className="mt-[5cqw] inline-flex min-h-[11cqw] items-center gap-[2.5cqw] self-start rounded-full bg-button px-[6cqw] text-[4cqw] text-surface no-underline hover:bg-black"
+      >
+        <span aria-hidden="true" className="size-[2.4cqw] flex-none rounded-full bg-rec" />
+        {t("blankCta")}
+      </Link>
+    </div>,
+  ];
+
+  const thoughts = [
+    <div key="t0">
+      <h1 className="text-[clamp(40px,5vw,64px)] leading-[0.98] tracking-[-0.03em]">
+        {t.rich("title", { em: (chunks) => <em className="lb-accent not-italic">{chunks}</em> })}
+      </h1>
+      <p className={thoughtText}>{t("lead")}</p>
+      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <Link href="/moment/new" className={`${buttonPrimary} min-h-[56px] text-[19px]`}>
+          <RecordDot />
+          {t("cta")}
+        </Link>
+        <span className="text-[16px] text-ink/70">{t("ctaNote")}</span>
+      </div>
+      <p className="mt-8 -rotate-2 font-hand text-[26px] leading-none text-graphite">
+        {t("flipHint")} <span className="hidden xl:inline">&rarr;</span>
+        <span className="xl:hidden">&darr;</span>
+      </p>
+    </div>,
+    ...([1, 2, 3] as const).map((n) => (
+      <div key={`t${n}`}>
+        <div className={kicker}>{t(`spread${n}Kicker`)}</div>
+        <h2 className={thoughtTitle}>{t(`spread${n}Title`)}</h2>
+        <p className={thoughtText}>{t(`spread${n}Text`)}</p>
+        {n === 3 && (
+          <Link href="/moment/new" className={`${buttonPrimary} mt-8 min-h-[56px] text-[19px]`}>
+            <RecordDot />
+            {t("cta")}
+          </Link>
+        )}
+      </div>
+    )),
+  ];
 
   return (
     <>
-      {/* Hero: the dark album page with one real-looking moment. */}
-      <section className="bg-album text-pencil">
-        <SiteHeader signedIn={!!member} tone="album" />
-        <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center gap-x-20 gap-y-14 px-5 pb-28 pt-6 sm:px-6 sm:pt-14">
-          <div className="min-w-0 max-w-[560px] flex-[1_1_420px]">
-            <h1 className="text-[clamp(40px,5.4vw,78px)] leading-[1.02] tracking-[-0.015em] text-print">{t("title")}</h1>
-            <p className="mt-6 max-w-[28em] text-[19px] leading-normal sm:text-[21px]">{t("lead")}</p>
-            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
-              <Link href="/moment/new" className={primaryCta}>
-                <RecordDot />
-                {t("cta")}
-              </Link>
-              <span className="text-[17px] text-pencil-soft">{t("ctaNote")}</span>
-            </div>
+      <LandingBook header={<SiteHeader signedIn={!!member} />} thoughts={thoughts} pages={pages} />
+
+      {/* First a card: one photo and a voice, sent to the family chat. */}
+      <section className="px-5 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <div className="-rotate-2 font-hand text-[30px] leading-none text-ink-soft">{t("postcardKicker")}</div>
+            <h2 className={`mt-2 ${sectionTitle}`}>{t("postcardTitle")}</h2>
+            <p className="mt-5 max-w-[30em] text-[18px] leading-relaxed text-ink/80 sm:text-[19px]">{t("postcardText")}</p>
+            <ol className="mt-7 grid max-w-[30em] list-none gap-3 p-0 text-[17px] leading-snug sm:text-[18px]">
+              {([1, 2, 3] as const).map((n) => (
+                <li key={n} className="flex gap-4">
+                  <span className="min-w-[22px] font-serif text-[28px] leading-none">{n}</span>
+                  <span>{t(`postcardStep${n}`)}</span>
+                </li>
+              ))}
+            </ol>
+            <Link href="/moment/new" className={`${buttonPrimary} mt-9`}>
+              <RecordDot />
+              {t("postcardCta")}
+            </Link>
           </div>
 
-          <figure className="m-0 min-w-0 max-w-[460px] flex-[1_1_360px]">
-            <PhotoPrint size="lg" className="max-w-[300px] sm:max-w-none">
-              <Image src={stump} alt={t("sampleAlt")} sizes="(max-width: 640px) 300px, 460px" priority />
-            </PhotoPrint>
-            <div className="reveal-wave mt-7">
-              <Waveform peaks={heroPeaks} className="h-11 text-wave-dark" />
+          <div aria-hidden="true" className="mx-auto flex w-full max-w-[420px] flex-col gap-2.5 bg-sky-soft px-4 py-6 sm:px-5">
+            <div className="max-w-[78%] self-end rounded-2xl rounded-br-sm bg-surface px-3.5 py-2.5 text-[16px] leading-snug sm:text-[17px]">
+              {t("chat1")}
             </div>
-            <blockquote className="m-0 mt-6 font-serif text-[19px] leading-relaxed sm:text-[20px]">
-              <span className="reveal-text [animation-delay:1.2s]">{t("sampleStory1")}</span>{" "}
-              <span className="reveal-text [animation-delay:1.9s]">{t("sampleStory2")}</span>{" "}
-              <span className="reveal-text [animation-delay:2.6s]">{t("sampleStory3")}</span>
-            </blockquote>
-            <figcaption className="reveal-text mt-4 text-[17px] text-pencil-soft [animation-delay:3.1s]">
-              {t("sampleCaption")}
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      {/* How it works: a real sequence, so the steps are numbered. */}
-      <section className="bg-paper px-5 py-24 sm:px-6 sm:py-32">
-        <div className="mx-auto max-w-[1200px]">
-          <h2 className={sectionTitle}>{t("howTitle")}</h2>
-          <ol className="mt-14 flex list-none flex-wrap gap-x-12 gap-y-14 p-0">
-            <li className="flex min-w-0 flex-[1_1_300px] flex-col border-t border-ink pt-6">
-              <div className="flex items-baseline gap-4">
-                <span className="font-serif text-[46px] leading-none">1</span>
-                <h3 className="font-sans text-[23px] font-medium tracking-normal">{t("step1Title")}</h3>
-              </div>
-              <p className="mt-4 max-w-[24em] text-[18px] leading-normal text-ink-soft">{t("step1Text")}</p>
-              <div className="mt-8 flex items-end sm:mt-10 sm:h-[210px]">
-                <PhotoPrint size="sm" className="w-[168px]">
-                  <Image src={baby} alt={t("step1Alt")} sizes="168px" />
-                </PhotoPrint>
-              </div>
-            </li>
-            <li className="flex min-w-0 flex-[1_1_300px] flex-col border-t border-ink pt-6">
-              <div className="flex items-baseline gap-4">
-                <span className="font-serif text-[46px] leading-none">2</span>
-                <h3 className="font-sans text-[23px] font-medium tracking-normal">{t("step2Title")}</h3>
-              </div>
-              <p className="mt-4 max-w-[24em] text-[18px] leading-normal text-ink-soft">{t("step2Text")}</p>
-              <div className="mt-8 flex items-center gap-5 sm:mt-10 sm:h-[210px]" aria-hidden="true">
-                <span className="rec-live flex size-[72px] flex-none items-center justify-center rounded-full bg-rec">
-                  <span className="size-[22px] rounded-[3px] bg-print" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <Waveform peaks={recordingPeaks} className="h-12 text-ink" />
-                  <div className="mt-2.5 text-[16px] tabular-nums text-ink-soft">0:37 / 3:00</div>
+            <div className="self-end rounded-2xl rounded-br-sm bg-surface p-1.5">
+              <div className="w-[min(230px,60vw)] bg-print px-3.5 pb-3 pt-3.5">
+                <div className="relative aspect-[4/5]">
+                  <Image src={stump} alt="" fill sizes="230px" className="object-cover" />
+                </div>
+                <p className="m-0 mt-2.5 font-serif text-[13.5px] leading-snug text-page-ink">{t("chatCard")}</p>
+                <div className="mt-2.5 flex items-center gap-2">
+                  <QrMark seed={7} className="size-[26px] flex-none text-page-ink" />
+                  <WaveBars seed={7} className="h-2.5 text-page-ink" />
                 </div>
               </div>
-            </li>
-            <li className="flex min-w-0 flex-[1_1_300px] flex-col border-t border-ink pt-6">
-              <div className="flex items-baseline gap-4">
-                <span className="font-serif text-[46px] leading-none">3</span>
-                <h3 className="font-sans text-[23px] font-medium tracking-normal">{t("step3Title")}</h3>
-              </div>
-              <p className="mt-4 max-w-[24em] text-[18px] leading-normal text-ink-soft">{t("step3Text")}</p>
-              <div className="mt-8 flex flex-wrap content-end gap-2.5 sm:mt-10 sm:h-[210px]">
-                {["Instagram", "Telegram", "WhatsApp", "LinkedIn"].map((name) => (
-                  <span key={name} className="rounded border border-ink px-4 py-2.5 text-[17px]">
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </li>
-          </ol>
+            </div>
+            <div className="max-w-[78%] self-start rounded-2xl rounded-bl-sm bg-print px-3.5 py-2.5 text-[16px] leading-snug sm:text-[17px]">
+              {t("chat2")}
+            </div>
+            <div className="max-w-[78%] self-start rounded-2xl rounded-bl-sm bg-print px-3.5 py-2.5 text-[16px] leading-snug sm:text-[17px]">
+              {t("chat3")}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* From moments to a book: a printed spread with the QR code to the voice. */}
-      <section className="bg-album px-5 py-28 text-pencil sm:px-6 sm:py-32">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-20 gap-y-14">
-          <div className="min-w-0 max-w-[430px] flex-[1_1_320px]">
-            <h2 className={`${sectionTitle} text-print`}>{t("bookTitle")}</h2>
-            <p className="mt-6 text-[19px] leading-relaxed">{t("bookText1")}</p>
-            <p className="mt-4 text-[19px] leading-relaxed">{t("bookText2")}</p>
-            <Link
-              href="/moment/new"
-              className="mt-9 inline-flex min-h-[52px] items-center rounded border border-print px-6 text-[18px] font-medium text-print no-underline"
-            >
-              {t("bookCta")}
-            </Link>
-            <p className="mt-4 text-[16px] text-pencil-soft">{t("bookNote")}</p>
+      {/* Then a book: saved cards add up to one. */}
+      <section className="bg-honey-soft px-5 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto grid max-w-[1200px] items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <div className="-rotate-2 font-hand text-[30px] leading-none text-ink-soft">{t("bookKicker")}</div>
+            <h2 className={`mt-2 ${sectionTitle}`}>{t("bookTitle")}</h2>
+            <p className="mt-5 max-w-[30em] text-[18px] leading-relaxed text-ink/80 sm:text-[19px]">{t("bookText")}</p>
+            <p className="mt-4 max-w-[30em] text-[16px] leading-relaxed text-ink-soft sm:text-[17px]">{t("bookNote")}</p>
           </div>
-          <div className="min-w-0 flex-[1_1_560px]">
-            <div className="flex shadow-[0_1px_0_rgba(0,0,0,0.35),0_36px_64px_-32px_rgba(0,0,0,0.8)] [container-type:inline-size]">
-              <div className="aspect-square min-w-0 flex-1 bg-print bg-[linear-gradient(to_left,rgba(29,32,36,0.12),rgba(29,32,36,0)_7%)] p-[6cqw] pr-[4.5cqw]">
-                <Image src={couch} alt={t("bookPhotoAlt")} sizes="(max-width: 640px) 45vw, 340px" className="size-full object-cover" />
-              </div>
-              <div className="flex aspect-square min-w-0 flex-1 flex-col bg-print bg-[linear-gradient(to_right,rgba(29,32,36,0.12),rgba(29,32,36,0)_7%)] p-[6cqw] pb-[5.5cqw] pl-[5cqw] text-ink">
-                <p className="font-serif text-[1.85cqw] leading-relaxed">{t("bookSample")}</p>
-                <p className="mt-[1.6cqw] text-[1.45cqw] text-ink-soft">{t("bookSampleCaption")}</p>
-                <div className="mt-auto flex items-center gap-[2cqw]">
-                  <QrPlaceholder />
-                  <div className="min-w-0 flex-1">
-                    <Waveform peaks={bookPeaks} className="h-[3cqw] text-ink" />
-                    <div className="mt-[0.8cqw] text-[1.2cqw] text-ink-soft">{t("bookQr")}</div>
+
+          <div aria-hidden="true" className="grid items-center gap-x-2.5 gap-y-5 sm:grid-cols-[1fr_auto_1fr]">
+            <div className="lb-fan relative h-[230px]">
+              {[
+                { src: couch, r: "-14deg", x: "-60%" },
+                { src: baby, r: "-6deg", x: "-30%" },
+                { src: stump, r: "3deg", x: "0%" },
+                { src: couch, r: "11deg", x: "30%" },
+              ].map((card, i) => (
+                <div
+                  key={i}
+                  className="lb-card absolute left-1/2 top-2.5 w-[120px] bg-print px-2 pb-[22px] pt-2"
+                  style={{ "--r": card.r, "--x": card.x } as React.CSSProperties}
+                >
+                  <div className="relative aspect-[4/5]">
+                    <Image src={card.src} alt="" fill sizes="120px" className="object-cover" />
                   </div>
                 </div>
+              ))}
+            </div>
+            <div className="flex flex-col items-center text-ink-soft">
+              <span className="whitespace-nowrap font-hand text-[22px]">{t("bookArrow")}</span>
+              <svg
+                viewBox="0 0 60 20"
+                className="h-[22px] w-16 rotate-90 fill-none stroke-current stroke-[1.4] sm:rotate-0"
+                strokeLinecap="round"
+              >
+                <path d="M2 12C18 4 36 4 54 10M54 10l-6-5M54 10l-7 3" />
+              </svg>
+            </div>
+            <div className="lb-cover flex aspect-[3/4] w-[170px] flex-col justify-end justify-self-center bg-berry px-[18px] py-[22px] text-print">
+              <div className="font-serif text-[26px] leading-[1.05]">{t("coverTitle")}</div>
+              <div className="mt-1.5 text-[13px] opacity-80">{t("coverSub")}</div>
+            </div>
+            <div className="w-full max-w-[360px] justify-self-center sm:col-span-3">
+              <div className="h-1.5 bg-line">
+                <div className="h-full w-1/2 bg-berry" />
               </div>
+              <div className="mt-2 text-center text-[15px] text-ink-soft">{t("progress")}</div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-paper px-5 py-24 sm:px-6 sm:py-32">
+      <section className="px-5 py-20 sm:px-6 sm:py-28">
         <div className="mx-auto max-w-[1200px]">
           <h2 className={sectionTitle}>{t("faqTitle")}</h2>
           <dl className="mt-12 flex flex-wrap gap-x-[72px] gap-y-11">
             {(["1", "2", "3", "4"] as const).map((n) => (
               <div key={n} className="min-w-0 max-w-[540px] flex-[1_1_420px]">
-                <dt className="font-serif text-[25px] font-medium">{t(`faqQ${n}`)}</dt>
+                <dt className="font-serif text-[25px]">{t(`faqQ${n}`)}</dt>
                 <dd className="m-0 mt-2.5 text-[18px] leading-relaxed text-ink-soft">{t(`faqA${n}`)}</dd>
               </div>
             ))}
@@ -167,49 +285,20 @@ export default async function LandingPage(props: PageProps<"/[locale]">) {
         </div>
       </section>
 
-      <footer className="bg-album px-5 pb-10 pt-24 text-pencil-soft sm:px-6 sm:pt-28">
-        <div className="mx-auto max-w-[1200px]">
-          <h2 className={`${sectionTitle} text-print`}>{t("finalTitle")}</h2>
-          <Link href="/moment/new" className={`${primaryCta} mt-9`}>
+      <footer className="px-5 pb-10 sm:px-6">
+        <div className="mx-auto max-w-[1200px] border-t border-line pt-20 sm:pt-24">
+          <h2 className={sectionTitle}>{t("finalTitle")}</h2>
+          <Link href="/moment/new" className={`${buttonPrimary} mt-9 min-h-[58px] text-[20px]`}>
             <RecordDot />
             {t("cta")}
           </Link>
-          <div className="mt-24 flex flex-wrap items-baseline justify-between gap-4 border-t border-line-dark pt-6 text-[16px]">
-            <span className="font-serif text-[21px] text-pencil">Slow Books</span>
+          <div className="mt-24 flex flex-wrap items-baseline justify-between gap-4 text-[15px] text-ink-soft">
+            <span className="font-serif text-[21px] text-ink">Slow Books</span>
             <span>Русский, English, Español, Deutsch</span>
           </div>
-          <p className="mt-4 text-[14px] leading-normal">{t("credits")}</p>
+          <p className="mt-4 text-[14px] leading-normal text-ink-soft">{t("credits")}</p>
         </div>
       </footer>
     </>
-  );
-}
-
-/** A QR-like mark for the sample book page. Real books print a QR code to the recording. */
-function QrPlaceholder() {
-  const size = 25;
-  let seed = 7;
-  const random = () => {
-    seed = (seed * 16807) % 2147483647;
-    return seed / 2147483647;
-  };
-  const finder = (x: number, y: number, fx: number, fy: number) => {
-    const dx = x - fx;
-    const dy = y - fy;
-    if (dx < -1 || dy < -1 || dx > 7 || dy > 7) return null;
-    if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return false;
-    return Math.max(Math.abs(dx - 3), Math.abs(dy - 3)) !== 2;
-  };
-  let d = "";
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const on = finder(x, y, 0, 0) ?? finder(x, y, size - 7, 0) ?? finder(x, y, 0, size - 7) ?? random() < 0.48;
-      if (on) d += `M${x} ${y}h1v1h-1z`;
-    }
-  }
-  return (
-    <svg viewBox={`0 0 ${size} ${size}`} shapeRendering="crispEdges" aria-hidden="true" className="size-[8.5cqw] flex-none">
-      <path d={d} fill="currentColor" />
-    </svg>
   );
 }

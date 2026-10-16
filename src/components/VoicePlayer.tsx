@@ -5,11 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { formatDuration } from "@/lib/waveform";
 import { Waveform } from "./Waveform";
 
-const tones = {
-  album: { button: "border-control-dark text-print", base: "text-wave-dark", played: "text-print", time: "text-pencil-soft" },
-  paper: { button: "border-ink text-ink", base: "text-wave-light", played: "text-ink", time: "text-ink-soft" },
-};
-
 /**
  * Plays the original recording over its waveform.
  * Duration comes from our database: recordings made by MediaRecorder often report no duration.
@@ -18,20 +13,17 @@ export function VoicePlayer({
   src,
   peaks,
   durationSec,
-  tone = "album",
   className = "",
 }: {
   src: string;
   peaks: number[];
   durationSec: number;
-  tone?: keyof typeof tones;
   className?: string;
 }) {
   const t = useTranslations("Voice");
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [position, setPosition] = useState(0);
-  const colors = tones[tone];
   const progress = durationSec > 0 ? Math.min(1, position / durationSec) : 0;
 
   useEffect(() => {
@@ -70,7 +62,7 @@ export function VoicePlayer({
         type="button"
         onClick={toggle}
         aria-label={playing ? t("pause") : t("listen")}
-        className={`flex size-12 flex-none items-center justify-center rounded-full border ${colors.button}`}
+        className="flex size-12 flex-none items-center justify-center rounded-full border border-ink text-ink hover:bg-surface"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           {playing ? (
@@ -81,14 +73,14 @@ export function VoicePlayer({
         </svg>
       </button>
       <div className="relative h-10 min-w-0 flex-1">
-        <Waveform peaks={peaks} className={`absolute inset-0 h-full ${colors.base}`} />
+        <Waveform peaks={peaks} className="absolute inset-0 h-full text-wave-light" />
         <Waveform
           peaks={peaks}
-          className={`absolute inset-0 h-full ${colors.played}`}
+          className="absolute inset-0 h-full text-ink"
           style={{ clipPath: `inset(0 ${100 - progress * 100}% 0 0)` }}
         />
       </div>
-      <span className={`flex-none text-[15px] tabular-nums ${colors.time}`}>
+      <span className="flex-none text-[15px] tabular-nums text-ink-soft">
         {formatDuration(playing || position > 0 ? position : durationSec)}
       </span>
     </div>

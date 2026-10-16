@@ -1,8 +1,12 @@
 import { randomInt } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, count, eq, isNotNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
-import { assets, books, entries, user } from "@/db/schema";
+import { assets, books, entries, momentStyles, user } from "@/db/schema";
+import { parseCardStyle } from "./card-style";
+
+/** About this many moments make a book: the landing and the moment page count towards it. */
+export const BOOK_MOMENTS = 24;
 
 /** Guests keep their moments this long unless they create an account. */
 export const GUEST_DAYS = 30;
@@ -60,15 +64,26 @@ export async function findMomentByShareId(shareId: string) {
       photo: photoAsset,
       audio: audioAsset,
       owner: { id: user.id, isAnonymous: user.isAnonymous, createdAt: user.createdAt },
+      style: momentStyles.style,
     })
     .from(entries)
     .innerJoin(photoAsset, eq(photoAsset.id, entries.photoAssetId))
     .leftJoin(audioAsset, eq(audioAsset.id, entries.audioAssetId))
     .innerJoin(user, eq(user.id, entries.userId))
+    .leftJoin(momentStyles, eq(momentStyles.entryId, entries.id))
     .where(eq(entries.shareId, shareId))
     .limit(1);
   if (!row || !row.entry.textFinal) return null;
-  return row;
+  return { ...row, style: parseCardStyle(row.style) };
 }
 
 export type Moment = NonNullable<Awaited<ReturnType<typeof findMomentByShareId>>>;
+
+/** Finished moments of one person: the ones with a story. */
+export async function countMoments(userId: string) {
+  const [row] = await db
+    .select({ n: count() })
+    .from(entries)
+    .where(and(eq(entries.userId, userId), isNotNull(entries.textFinal)));
+  return row?.n ?? 0;
+}

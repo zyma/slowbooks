@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { PhotoPrint } from "@/components/PhotoPrint";
+import { buttonPrimary, field } from "@/components/styles";
 import { Waveform } from "@/components/Waveform";
 import { useRouter } from "@/i18n/navigation";
 import { locales, type AppLocale } from "@/i18n/routing";
@@ -370,7 +371,7 @@ export function MomentComposer() {
 
   return (
     <div className="mx-auto flex w-full max-w-[560px] flex-col px-5 pb-16">
-      <h1 className="mt-2 text-[28px] leading-tight">{t("title")}</h1>
+      <h1 className="mt-2 text-[36px] leading-tight">{t("title")}</h1>
 
       <input
         ref={fileInput}
@@ -384,7 +385,7 @@ export function MomentComposer() {
       {step === "photo" && (
         <div className="mt-8">
           {photoUrl && busy ? (
-            <PhotoPrint size="md" className="mx-auto w-[240px] opacity-60">
+            <PhotoPrint className="mx-auto w-[240px] opacity-60">
               {/* eslint-disable-next-line @next/next/no-img-element -- local preview from a blob URL */}
               <img src={photoUrl} alt="" />
             </PhotoPrint>
@@ -393,9 +394,9 @@ export function MomentComposer() {
               type="button"
               onClick={() => fileInput.current?.click()}
               disabled={busy}
-              className="flex min-h-[260px] w-full flex-col items-center justify-center gap-3 rounded border border-dashed border-ink-soft bg-print px-6 text-center"
+              className="flex min-h-[260px] w-full flex-col items-center justify-center gap-3 border border-dashed border-ink-soft bg-surface px-6 text-center hover:border-ink"
             >
-              <span className="text-[21px] font-medium">{t("choosePhoto")}</span>
+              <span className="text-[21px]">{t("choosePhoto")}</span>
               <span className="max-w-[26em] text-[16px] text-ink-soft">{t("choosePhotoHint")}</span>
             </button>
           )}
@@ -404,7 +405,7 @@ export function MomentComposer() {
       )}
 
       {step !== "photo" && photoUrl && (
-        <PhotoPrint size="md" className={`mx-auto mt-6 ${step === "edit" ? "w-[160px]" : "w-[220px]"}`}>
+        <PhotoPrint className={`mx-auto mt-6 ${step === "edit" ? "w-[160px]" : "w-[220px]"}`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- local preview from a blob URL */}
           <img src={photoUrl} alt={t("photoAlt")} />
         </PhotoPrint>
@@ -425,8 +426,8 @@ export function MomentComposer() {
                 {locales.map((l) => (
                   <label
                     key={l}
-                    className={`flex min-h-11 min-w-12 cursor-pointer items-center justify-center rounded border px-3 text-[16px] ${
-                      language === l ? "border-ink bg-ink text-print" : "border-line"
+                    className={`flex min-h-11 min-w-12 cursor-pointer items-center justify-center rounded-full border px-3 text-[16px] ${
+                      language === l ? "border-button bg-button text-surface" : "border-line bg-surface"
                     }`}
                   >
                     <input
@@ -457,7 +458,7 @@ export function MomentComposer() {
           )}
 
           <p className="mt-6 text-center tabular-nums">
-            <span className="text-[28px] font-medium">{formatDuration(seconds)}</span>
+            <span className="text-[28px]">{formatDuration(seconds)}</span>
             <span className="text-[16px] text-ink-soft"> {t("of", { max: formatDuration(MAX_SECONDS) })}</span>
           </p>
           <div className="mt-4 flex flex-col items-center gap-3">
@@ -467,7 +468,7 @@ export function MomentComposer() {
               aria-label={recording ? t("stop") : t("record")}
               className={`flex size-20 items-center justify-center rounded-full bg-rec ${recording ? "rec-live" : ""}`}
             >
-              <span className={recording ? "size-6 rounded-[3px] bg-print" : "size-6 rounded-full bg-print"} />
+              <span className={recording ? "size-6 rounded-[3px] bg-surface" : "size-6 rounded-full bg-surface"} />
             </button>
             <span className="text-[16px] text-ink-soft">{recording ? t("stop") : t("record")}</span>
           </div>
@@ -503,7 +504,7 @@ export function MomentComposer() {
             onChange={(e) => setText(e.target.value)}
             required
             rows={10}
-            className="mt-4 min-h-[260px] resize-y rounded border border-line bg-print px-4 py-3 font-serif text-[18px] leading-relaxed"
+            className="mt-4 min-h-[260px] resize-y border border-line bg-surface px-4 py-3 font-serif text-[18px] leading-relaxed"
           />
           <label htmlFor="caption" className="mt-5 text-[16px] text-ink-soft">
             {t("captionLabel")}
@@ -514,7 +515,7 @@ export function MomentComposer() {
             onChange={(e) => setCaption(e.target.value)}
             maxLength={120}
             placeholder={t("captionPlaceholder")}
-            className="mt-1.5 min-h-12 rounded border border-line bg-print px-3.5 text-[17px]"
+            className={`mt-1.5 ${field}`}
           />
           {hasVoice && (
             <label className="mt-5 flex min-h-11 items-center gap-3 text-[16px] leading-snug">
@@ -522,7 +523,7 @@ export function MomentComposer() {
                 type="checkbox"
                 checked={voicePublic}
                 onChange={(e) => setVoicePublic(e.target.checked)}
-                className="size-[22px] flex-none accent-album"
+                className="size-[22px] flex-none accent-button"
               />
               {t("voicePublic")}
             </label>
@@ -530,7 +531,7 @@ export function MomentComposer() {
           <button
             type="submit"
             disabled={busy || !text.trim()}
-            className="mt-6 min-h-14 rounded bg-album text-[19px] font-medium text-print disabled:opacity-60"
+            className={`${buttonPrimary} mt-6 min-h-14`}
           >
             {busy ? t("creating") : t("create")}
           </button>
@@ -548,7 +549,7 @@ export function MomentComposer() {
       )}
 
       {errorText && (
-        <p role="alert" className="mt-6 rounded border border-rec/40 bg-print px-4 py-3 text-[16px] leading-normal">
+        <p role="alert" className="mt-6 border border-rec/40 bg-surface px-4 py-3 text-[16px] leading-normal">
           {errorText}
         </p>
       )}

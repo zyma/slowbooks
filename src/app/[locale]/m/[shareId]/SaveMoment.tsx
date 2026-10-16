@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { buttonPrimary, field } from "@/components/styles";
 import { authClient } from "@/lib/auth-client";
 
 /** A guest saves their moment: email sign-in link that ends on the claim route. */
@@ -41,13 +42,9 @@ export function SaveMoment({ claimPath, keptUntil }: { claimPath: string; keptUn
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="name@example.com"
-        className="mt-1.5 min-h-12 rounded border border-line bg-print px-3.5 text-[17px]"
+        className={`mt-1.5 ${field}`}
       />
-      <button
-        type="submit"
-        disabled={state === "sending"}
-        className="mt-3 min-h-[52px] rounded bg-album text-[18px] font-medium text-print disabled:opacity-60"
-      >
+      <button type="submit" disabled={state === "sending"} className={`${buttonPrimary} mt-3`}>
         {state === "sending" ? t("saving") : t("save")}
       </button>
       {state === "error" && (

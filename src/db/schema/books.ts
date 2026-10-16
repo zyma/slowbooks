@@ -121,6 +121,18 @@ export const entries = pgTable(
   (t) => [index("entries_book_id_idx").on(t.bookId), index("entries_user_id_idx").on(t.userId)],
 );
 
+/**
+ * How a moment's card looks (layout, table, phrase, signature): layout, so it is kept apart from the entry.
+ * One row per moment; no row means the default look. See src/lib/card-style.ts.
+ */
+export const momentStyles = pgTable("moment_styles", {
+  entryId: uuid("entry_id")
+    .primaryKey()
+    .references(() => entries.id, { onDelete: "cascade" }),
+  style: jsonb("style").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const renders = pgTable("renders", {
   id: uuid("id").primaryKey().defaultRandom(),
   bookId: uuid("book_id")

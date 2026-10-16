@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { resolveLocale } from "@/i18n/locale";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Alegreya, Alegreya_Sans } from "next/font/google";
+import { Alegreya, Alegreya_Sans, Caveat } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { env } from "@/lib/env";
 import "../globals.css";
@@ -18,6 +18,13 @@ const alegreyaSans = Alegreya_Sans({
   variable: "--font-alegreya-sans",
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+// Handwriting for pencil notes on the pages.
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin", "latin-ext", "cyrillic"],
   display: "swap",
 });
 
@@ -40,7 +47,7 @@ export default async function LocaleLayout(props: LayoutProps<"/[locale]">) {
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`${alegreya.variable} ${alegreyaSans.variable} h-full`}>
+    <html lang={locale} className={`${alegreya.variable} ${alegreyaSans.variable} ${caveat.variable} h-full`}>
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>{props.children}</NextIntlClientProvider>
       </body>

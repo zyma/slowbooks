@@ -6,12 +6,11 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 
 const labels: Record<AppLocale, string> = { en: "EN", ru: "RU", es: "ES", de: "DE" };
 
-export function LanguageSwitcher({ tone = "paper" }: { tone?: "album" | "paper" }) {
+export function LanguageSwitcher() {
   const locale = useLocale();
   const t = useTranslations("Common");
   const router = useRouter();
   const pathname = usePathname();
-  const colors = tone === "album" ? "border-[#5a6066] text-pencil" : "border-line text-ink";
 
   return (
     <label className="flex items-center">
@@ -19,7 +18,7 @@ export function LanguageSwitcher({ tone = "paper" }: { tone?: "album" | "paper" 
       <select
         value={locale}
         onChange={(e) => router.replace(pathname, { locale: e.target.value as AppLocale })}
-        className={`min-h-11 rounded border bg-transparent px-2.5 text-[16px] ${colors}`}
+        className="min-h-11 rounded-full border border-line bg-transparent px-3 text-[16px] text-ink"
       >
         {locales.map((l) => (
           <option key={l} value={l} className="text-ink">
